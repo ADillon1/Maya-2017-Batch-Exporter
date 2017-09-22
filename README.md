@@ -22,3 +22,9 @@ Simply download/copy the code in the [batch-exporter.py](https://github.com/ADil
 4. Open the outliner and select all the objects/groups you would like to export. Be wary of object and group names, as these names are used for the names of the output files.
 5. Press the Export button. Info/errors will show up in the output window in the middle.
 6. Your files will show up in the target directory.
+
+# Coming soon
+
+1. Option to auto freeze transforms
+2. Fix default location issue. 'C:\' changed to 'C:'
+3. Move objects to origin and back while exporting
