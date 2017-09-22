@@ -70,7 +70,6 @@ class Exporter(QtWidgets.QDialog):
                 c.close()
                 
         self.ui = Ui_Dialog()
-        
 
         # set up the interface from the compiled ui file
         self.ui.setupUi(self)
@@ -123,10 +122,23 @@ class Exporter(QtWidgets.QDialog):
         for selection in selected:
             text = self.ui.output.toPlainText()
             cmds.select(selection, r=True)
-
+            
+            # store object position
+            x_value = cmds.getAttr("%s.translateX" % selection)
+            y_value = cmds.getAttr("%s.translateY" % selection)
+            z_value = cmds.getAttr("%s.translateZ" % selection)
+            
+            # move to origin
+            cmds.setAttr("%s.translateX" % selection, 0);
+            cmds.setAttr("%s.translateY" % selection, 0);
+            cmds.setAttr("%s.translateZ" % selection, 0);
+            
+            # freeze transforms
+            cmds.makeIdentity(apply=True, t=1, r=1, s=1, n=2)
+            
             if '|' in selection:
                 selection = selection.partition('|')[2]
-
+            
             if ext == '.fbx':
                 pm.mel.FBXExport(s=True, f=path + selection + ext)
             elif ext == '.obj':
@@ -136,7 +148,12 @@ class Exporter(QtWidgets.QDialog):
             elif ext == '.ma':
                 pm.mel.file(path+selection+ext,force=1, es=True, typ="mayaAscii", op="groups=1;ptgroups=1;materials=1;smoothing=1;normals=1", pr=1)
             self.ui.output.setPlainText(text + "Exporting: " + selection + ext + "\n")
-
+            
+            # move back to origional position
+            cmds.setAttr("%s.translateX" % selection, x_value);
+            cmds.setAttr("%s.translateY" % selection, y_value);
+            cmds.setAttr("%s.translateZ" % selection, z_value);
+            
         text = self.ui.output.toPlainText()
         self.ui.output.setPlainText(text + "Finished!")
 
