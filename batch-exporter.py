@@ -64,7 +64,6 @@ class Ui_Dialog(object):
 class Exporter(QtWidgets.QDialog):
     def __init__(self, parent=QtWidgets.QApplication.activeWindow()):
         super(Exporter, self).__init__(parent)
-        
         for c in parent.children():
             if isinstance(c, QtWidgets.QDialog) and c.isVisible():
                 c.close()
