@@ -2,14 +2,17 @@
 # Author: Andrew Dillon
 # Date: 9/17/2017
 
+
 # See readme.md for more details on use.
 # Distributed under MIT
+
 
 import maya.cmds as cmds
 import maya.mel
 import os, sys, pprint, inspect
 import pymel.core as pm
 from PySide2 import QtCore, QtGui, QtWidgets
+
 
 
 class Ui_Dialog(object):
@@ -54,8 +57,10 @@ class Ui_Dialog(object):
         self.checkBox_2.setChecked(True)
         self.checkBox_2.setObjectName("checkBox_2")
 
+
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
+
 
     def retranslateUi(self, Dialog):
         Dialog.setWindowTitle(QtWidgets.QApplication.translate("Dialog", "Batch Exporter", None, -1))
@@ -71,6 +76,7 @@ class Ui_Dialog(object):
         self.checkBox.setText(QtWidgets.QApplication.translate("Dialog", "Freeze Transforms", None, -1))
         self.checkBox_2.setText(QtWidgets.QApplication.translate("Dialog", "Move to Origin", None, -1))
 
+
 class Exporter(QtWidgets.QDialog):
     def __init__(self, parent=QtWidgets.QApplication.activeWindow()):
         super(Exporter, self).__init__(parent)
@@ -80,14 +86,17 @@ class Exporter(QtWidgets.QDialog):
                 
         self.ui = Ui_Dialog()
 
+
         # set up the interface from the compiled ui file
         self.ui.setupUi(self)
+
 
         # This is a lightweight Tool window       
         self.setWindowFlags(QtCore.Qt.Tool)
         self.ui.change_btn.clicked.connect(self.changeDirectory)
         self.ui.export_btn.clicked.connect(self.exportSelection)
         self.show()
+
 
     def changeDirectory(self, *arg):
         text = cmds.fileDialog2(cap='Select Target Directory',
@@ -97,21 +106,25 @@ class Exporter(QtWidgets.QDialog):
         if not text == None:
             self.ui.textBox.setText(text[0])
 
+
     def exportSelection(self, *arg):
         selected = cmds.ls(sl=1)
         path = self.ui.textBox.text() + '/'
         ext = self.ui.comboBox.currentText()
         self.ui.output.clear()
 
+
         if not cmds.pluginInfo('objExport', q=True, l=True):
             text = self.ui.output.toPlainText()
             self.ui.output.setPlainText(text + "Loaded OBJ plugin.\n")
             cmds.loadPlugin('objExport')
 
+
         if not cmds.pluginInfo('fbxmaya', q=True, l=True):
             text = self.ui.output.toPlainText()
             self.ui.output.setPlainText(text + "Loaded FBX plugin. \n")
             cmds.loadPlugin('fbxmaya')
+
 
         # Check for selection in outliner.
         if len(selected) == 0:
@@ -119,29 +132,29 @@ class Exporter(QtWidgets.QDialog):
             self.ui.output.setPlainText(text + "Error: Nothing selected in outliner! \n")
             return
 
+
         # Check for updated path.
         if self.ui.textBox.text() == "C:":
             text = self.ui.output.toPlainText()
             self.ui.output.setPlainText(text + "Error: Don't forget to set the target path! \n")
             return
 
+
         self.ui.output.clear()
-        self.ui.output.setPlainText("Location: " + path + "\n")
-        
         freeze = self.ui.checkBox.isChecked()
-        move = self.ui.checkBox2.isChecked()
+        move = self.ui.checkBox_2.isChecked()
+        self.ui.output.setPlainText("Location: " + path + "\n")
 
         for selection in selected:
             text = self.ui.output.toPlainText()
             cmds.select(selection, r=True)
             
+            # store object position
+            x_value = cmds.getAttr("%s.translateX" % selection)
+            y_value = cmds.getAttr("%s.translateY" % selection)
+            z_value = cmds.getAttr("%s.translateZ" % selection)
 
             if move:
-                # store object position
-                x_value = cmds.getAttr("%s.translateX" % selection)
-                y_value = cmds.getAttr("%s.translateY" % selection)
-                z_value = cmds.getAttr("%s.translateZ" % selection)
-                
                 # move to origin
                 cmds.setAttr("%s.translateX" % selection, 0);
                 cmds.setAttr("%s.translateY" % selection, 0);
@@ -172,5 +185,6 @@ class Exporter(QtWidgets.QDialog):
             
         text = self.ui.output.toPlainText()
         self.ui.output.setPlainText(text + "Finished!")
+
 
 ui = Exporter()
